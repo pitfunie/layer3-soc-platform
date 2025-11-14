@@ -1,5 +1,4 @@
 ##I just gave you the complete starter code above—Lambda function, GitHub Actions workflow, EventBridge setup, and deploy script. Copy those files, swap in your GitHub token and repo name, and you'll have a working demo showing GuardDuty → GitHub Issues → Automated Response.
-
 ## Start with deploy.sh to get your Lambda up, then push the GitHub Action to your repo. Within an hour you'll be processing real GuardDuty findings into GitHub issues. 
 
 <img width="1882" height="1004" alt="image" src="https://github.com/user-attachments/assets/bd6b947d-7703-4cf2-bcde-d07fb4ff9703" />
