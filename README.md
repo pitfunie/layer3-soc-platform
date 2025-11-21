@@ -141,6 +141,36 @@ GitHub Action (security-response.yml)
       })
     }
 
+🛡️ Automated Security Response Workflow
+
+This repository includes a GitHub Action that automatically triages security-related issues.
+
+Trigger Conditions:
+
+    Fires when an issue is opened or labeled
+
+    Only runs if the issue has the security label
+
+Workflow Location:
+
+.github/workflows/security-response.yml
+
+Behavior:
+
+    Parses the issue title for severity tags like SEV-1, SEV-9, etc.
+
+    Extracts the numeric severity level
+
+    If severity is ≥ 7, it configures AWS credentials for automated response
+
+Example Trigger:
+Issue Title: SEV-9: Critical vulnerability in webhook_receiver.py
+Label: security
+
+
+
+
+
 🚀 Quick Deploy Script
 
       #!/bin/bash
