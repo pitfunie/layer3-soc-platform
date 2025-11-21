@@ -85,11 +85,11 @@ def format_issue_body(finding):
 **Account:** {finding['accountId']}
 **Time:** {finding['updatedAt']}
 
-### Affected Resource
+Affected Resource
 - **Type:** {finding['resource']['resourceType']}
 - **Details:** {json.dumps(finding['resource'], indent=2)}
 
-### Finding Details
+Finding Details
 ```json
 {json.dumps(finding['service'], indent=2)}
 
