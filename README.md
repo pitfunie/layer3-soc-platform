@@ -163,12 +163,25 @@ Behavior:
 
     If severity is ≥ 7, it configures AWS credentials for automated response
 
+AWS Credentials Setup:
+
+    Each team must generate their own AWS access keys
+
+    Keys must be added to the GitHub repository as secrets:
+
+        AWS_ACCESS_KEY_ID
+
+        AWS_SECRET_ACCESS_KEY
+
+* These secrets are referenced securely in the workflow:
+    with:
+    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    aws-region: us-east-1
+
 Example Trigger:
 Issue Title: SEV-9: Critical vulnerability in webhook_receiver.py
 Label: security
-
-
-
 
 
 🚀 Quick Deploy Script
