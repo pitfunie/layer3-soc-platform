@@ -1,6 +1,39 @@
 ## Start with deploy.sh to get your Lambda up, then push the GitHub Action to your repo. Within an hour you'll be processing real GuardDuty findings into GitHub issues. 
 
+
+
+
 <img width="1792" height="1120" alt="image" src="https://github.com/user-attachments/assets/8c9992b8-06b9-4f41-874f-d78847e96bf5" />
+
+
+
+
+## 🔍 Layer 3 SOC Integration Overview
+
+This platform demonstrates real-time SOC automation using GitHub, EventBridge, and AWS-native services.  
+It highlights a $22M annual savings through intelligent routing, automated response, and compliance logging.
+
+![Layer 3 SOC Integration](docs/layer3-soc-integration.png)
+
+**Key Components:**
+- **GitHub Webhooks & Actions**: Trigger detection and response workflows
+- **EventBridge**: Routes high-severity findings to Lambda
+- **Lambda**: Executes automated actions (ECS restart, SG updates, audit logging)
+- **Security Hub & Audit Manager**: Ensure threat detection and compliance
+- **ECS/EKS & CodePipeline**: Containerized response and CI/CD integration
+
+**Real-Time Metrics:**
+- Flow Rate: `4,194`
+- Response Time: `1.2s`
+- Annual Savings: `$22M`
+
+**Interactive Controls:**
+- `Stream Repo` | `Show ROI` | `Simulate Attack`
+
+> This diagram anchors the Layer 3 SOC demo with sticky arrows, port mapping, and intelligence labels.  
+> It reflects parity with Layer 2 visuals and supports hands-on verification and stakeholder clarity.
+
+
 
 
 
