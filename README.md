@@ -44,17 +44,22 @@ It highlights a $22M annual savings through intelligent routing, automated respo
 
 
 layer3-soc-github/
-├── lambda/
-│   ├── webhook_receiver.py
-│   ├── requirements.txt
-│   └── deploy.sh
+├── README.md
+├── docs/
+│   └── layer3-soc-integration.png
 ├── .github/
 │   └── workflows/
 │       └── security-response.yml
 ├── terraform/
 │   ├── main.tf
-│   └── variables.tf
-└── README.md
+│   ├── variables.tf
+│   └── terraform.tfvars
+├── lambda/
+│   ├── webhook_receiver.py
+│   ├── requirements.txt
+│   └── function.zip
+└── deploy.sh
+
 
 
 
