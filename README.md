@@ -112,15 +112,16 @@ GitHub Action (security-response.yml)
             id: parse
             run: |
               echo "Parsing issue body..."
-              echo "SEVERITY=$(echo '${{ github.event.issue.title }}' | grep -o 'SEV-[0-9]' | grep -o '[0-9]')" >> $GITHUB_OUTPUT
-      
-      - name: Auto-Response for High Severity
-        if: steps.parse.outputs.SEVERITY >= 7
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+              SEVERITY=$(echo "${{ github.event.issue.title }}" | grep -o 'SEV-[0-9]' | grep -o '[0-9]' || echo 0)
+              echo "SEVERITY=$SEVERITY" >> $GITHUB_OUTPUT
+    
+          - name: Auto-Response for High Severity
+            if: ${{ steps.parse.outputs.SEVERITY >= 7 }}
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+              aws-region: us-east-1
 
 
  EventBridge Rule (Terraform)
