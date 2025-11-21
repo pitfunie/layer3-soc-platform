@@ -37,24 +37,24 @@ It highlights a $22M annual savings through intelligent routing, automated respo
 
 🧩 File Placement & Repo Structure
 
-#
-layer3-soc-github/
-├── README.md
-├── docs/
-│   └── layer3-soc-integration.png
-├── .github/
-│   └── workflows/
-│       └── security-response.yml
-├── terraform/
-│   ├── main.tf
-│   ├── variables.tf
-│   └── terraform.tfvars
-├── lambda/
-│   ├── webhook_receiver.py
-│   ├── requirements.txt
-│   └── function.zip
-└── deploy.sh
-#
+
+''' layer3-soc-github/
+    ├── README.md
+    ├── docs/
+    │   └── layer3-soc-integration.png
+    ├── .github/
+    │   └── workflows/
+    │       └── security-response.yml
+    ├── terraform/
+    │   ├── main.tf
+    │   ├── variables.tf
+    │   └── terraform.tfvars
+    ├── lambda/
+    │   ├── webhook_receiver.py
+    │   ├── requirements.txt
+    │   └── function.zip
+    └── deploy.sh
+
 
 
 📖 Must Read
