@@ -73,7 +73,8 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps({'fingerprint': fingerprint})
     }
-
+====
+{json
 def format_issue_body(finding):
     """Format GuardDuty finding as GitHub issue"""
     return f"""
