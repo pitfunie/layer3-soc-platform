@@ -38,7 +38,7 @@ It highlights a $22M annual savings through intelligent routing, automated respo
 🧩 File Placement & Repo Structure
 
 
-''' layer3-soc-github/
+``` layer3-soc-github/
     ├── README.md
     ├── docs/
     │   └── layer3-soc-integration.png
