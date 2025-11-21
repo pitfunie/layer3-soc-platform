@@ -1,7 +1,7 @@
 
 ## Start with deploy.sh to get your Lambda up, then push the GitHub Action to your repo. Within an hour you'll be processing real GuardDuty findings into GitHub issues. 
 
-<img width="1792" height="1120" alt="image" src="https://github.com/user-attachments/assets/22274d71-54d3-4c37-9dfa-d5e7e88be496" />
+<img width="1792" height="1120" alt="image" src="https://github.com/user-attachments/assets/8c9992b8-06b9-4f41-874f-d78847e96bf5" />
 
 
 
