@@ -35,12 +35,7 @@ It highlights a $22M annual savings through intelligent routing, automated respo
 
 
 
-
-
-
-
-
-# Project Structure 
+🧩 File Placement & Repo Structure
 
 
 layer3-soc-github/
@@ -59,13 +54,6 @@ layer3-soc-github/
 │   ├── requirements.txt
 │   └── function.zip
 └── deploy.sh
-
-
-
-
-
-
-
 
 
 
