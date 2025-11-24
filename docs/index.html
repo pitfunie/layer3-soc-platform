@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber StoryFlow 2.0: SOC Transformation Platform</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui;background:linear-gradient(180deg,#07090b 0%,#0b0f14 100%);color:#e0e0e0;min-height:100vh;overflow-x:hidden;contain:layout style paint}
+header{background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);border-bottom:2px solid #30363d;padding:1rem;text-align:center}
+h1{font-size:clamp(1.5rem,4vw,2.5rem);background:linear-gradient(90deg,#9d4edd,#3a86ff,#06ffa5);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:0.5rem}
+.subtitle{color:#8b949e;font-size:clamp(0.75rem,2vw,0.95rem);margin-bottom:1rem}
+.controls{display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;justify-content:center}
+.btn,.select{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:0.5rem 1rem;border-radius:6px;cursor:pointer;transition:all 0.2s;font-size:clamp(0.7rem,2vw,0.9rem)}
+.btn:hover,.select:hover{background:#30363d;border-color:#58a6ff}
+.btn.error{background:#f85149;border-color:#f85149}
+.dashboard{display:grid;gap:1rem;padding:1rem;height:auto;min-height:calc(100vh - 200px)}
+@media (max-width:767px){.dashboard{grid-template-columns:1fr}.panel{max-height:400px}.architecture-canvas{grid-template-columns:1fr;gap:1rem;padding:1rem}.layer-header{display:none}.component{max-width:100%;width:100%}.metrics-panel{order:3}.legend{position:static;max-width:100%;margin:1rem;background:#161b22;border:1px solid #30363d;border-radius:6px;padding:1rem}.deployment-panel{position:static!important;width:100%!important;bottom:auto!important;left:auto!important;margin-top:1rem}}.controls-bottom{padding-bottom:1rem}}
+@media (min-width:768px) and (max-width:1199px){.dashboard{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}.panel:nth-child(2){grid-column:1/-1}.metrics-panel{grid-column:1/-1}.architecture-canvas{grid-template-columns:repeat(3,1fr);gap:1rem;padding:1.5rem}.layer-header{font-size:0.75rem}.component{max-width:140px}.legend{position:fixed;bottom:100px;right:calc(20px + 480px);max-width:200px}.deployment-panel{position:fixed;bottom:calc(100px - 19px);right:calc(20px + 480px + 220px);width:200px;max-height:auto}}
+@media (min-width:1200px){.dashboard{grid-template-columns:300px 1fr 280px}.architecture-canvas{grid-template-columns:120px repeat(5,1fr);grid-template-rows:repeat(4,1fr);gap:1.5rem;padding:2rem}.component{max-width:160px}.legend{position:fixed;bottom:100px;right:calc(20px + 480px);max-width:220px}.deployment-panel{position:fixed;bottom:calc(100px - 19px);right:calc(20px + 480px + 220px);width:200px;max-height:auto}}
+@media (min-width:2560px){.dashboard{grid-template-columns:400px 1fr 350px;gap:1.5rem;padding:2rem}.component{max-width:200px;padding:1.5rem}.architecture-canvas{gap:2rem;padding:3rem}h1{font-size:3.5rem}.btn,.select{padding:0.8rem 1.5rem;font-size:1.1rem}}
+.panel{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:1rem;overflow-y:auto;contain:content}
+.panel h3{color:#58a6ff;font-size:clamp(0.9rem,2vw,1rem);margin-bottom:1rem}
+.event-stream{height:calc(100% - 3rem);overflow-y:auto;contain:strict}
+.event-stream::-webkit-scrollbar{width:8px}
+.event-stream::-webkit-scrollbar-track{background:#0d1117;border-radius:4px}
+.event-stream::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}
+.event-item{background:rgba(13,110,253,0.1);border-left:3px solid #58a6ff;padding:0.75rem;margin-bottom:0.5rem;border-radius:4px;font-size:0.875rem;opacity:0;animation:fadeIn 0.3s ease-out forwards}
+@keyframes fadeIn{to{opacity:1}}
+.event-item.normal{border-left-color:#3fb950;background:rgba(63,185,80,0.05)}
+.event-item.ddos{border-left-color:#ff6b6b;background:rgba(255,107,107,0.1)}
+.event-item.credential{border-left-color:#f0ad4e;background:rgba(240,173,78,0.05)}
+.event-item.critical{border-left-color:#f85149;background:rgba(248,81,73,0.1)}
+.event-time{color:#8b949e;font-size:0.75rem}
+.event-message{color:#e6edf3;margin-top:0.25rem}
+.architecture-canvas{position:relative;display:grid;align-items:center;justify-items:center}
+.layer-header{display:flex;align-items:center;justify-content:flex-end;padding-right:1rem;font-size:0.85rem;font-weight:600;color:#e6edf3;background:linear-gradient(90deg,rgba(0,0,0,0.2),transparent);border-radius:4px;padding:0.5rem 1rem}
+.connections-layer{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.component{background:#0d1117;border:2px solid #30363d;border-radius:8px;padding:1.2rem;text-align:center;width:100%;cursor:pointer;position:relative;z-index:2;transition:all 0.2s}
+.component[data-id="lambda"],.component[data-id="github"],.component[data-id="eventbridge"],.component[data-id="ecs"],.component[data-id="securityhub"]{padding:1.8rem;font-size:1.1rem;box-shadow:0 8px 24px rgba(6,255,165,0.3),inset 0 1px 0 rgba(255,255,255,0.1);transform:scale(1.15);animation:pulse-ai 2s ease-in-out infinite}
+@keyframes pulse-ai{0%,100%{transform:scale(1.15);box-shadow:0 8px 24px rgba(6,255,165,0.3),inset 0 1px 0 rgba(255,255,255,0.1)}50%{transform:scale(1.2);box-shadow:0 12px 32px rgba(6,255,165,0.5),inset 0 1px 0 rgba(255,255,255,0.2)}}
+.component:hover{border-color:#58a6ff;box-shadow:0 4px 12px rgba(88,166,255,0.2)}
+.component h4{color:#58a6ff;font-size:0.9rem;margin-bottom:0.4rem}
+.component p{color:#8b949e;font-size:0.75rem}
+.layer1-color{border-color:#9d4edd!important}
+.layer2-color{border-color:#3a86ff!important}
+.layer3-color{border-color:#06ffa5!important}
+.metrics-panel{display:flex;flex-direction:column;gap:1rem}
+.metric{background:rgba(13,110,253,0.05);border-left:3px solid #58a6ff;padding:1rem;border-radius:4px}
+.metric-label{color:#8b949e;font-size:0.875rem;margin-bottom:0.25rem}
+.metric-value{color:#58a6ff;font-size:clamp(1.2rem,3vw,1.8rem);font-weight:600}
+.controls-bottom{position:fixed;bottom:0;left:0;right:0;height:auto;background:#0d1117;border-top:1px solid #30363d;display:flex;align-items:center;justify-content:center;gap:1rem;padding:1rem;z-index:100;flex-wrap:wrap}
+.flow-path{stroke:#58a6ff;stroke-width:2;fill:none;pointer-events:none}
+.flow-path.layer1{stroke:#9d4edd}
+.flow-path.layer2{stroke:#3a86ff}
+.flow-path.layer3{stroke:#06ffa5}
+.flow-path.normal{stroke:#3fb950;stroke-width:2}
+.flow-path.ddos{stroke:#ff6b6b;stroke-width:4;animation:pulse-ddos 0.5s infinite}
+.flow-path.credential{stroke:#f0ad4e;stroke-width:3;animation:pulse-cred 0.8s infinite}
+@keyframes pulse-ddos{0%,100%{stroke-width:4}50%{stroke-width:6}}
+@keyframes pulse-cred{0%,100%{stroke-width:3}50%{stroke-width:5}}
+@keyframes flow{to{stroke-dashoffset:-15}}
+@keyframes colorCycle{0%{stroke:#6e40aa}25%{stroke:#9d4edd}50%{stroke:#3a86ff}75%{stroke:#06ffa5}100%{stroke:#6e40aa}}
+.github-flow-path{stroke-width:4;animation:flow 0.05s linear infinite,colorCycle 0.2s ease-in-out infinite;filter:drop-shadow(0 0 4px currentColor)}
+.eventbridge-flow-path{stroke:#06ffa5;stroke-width:4;animation:flow 0.05s linear infinite;filter:drop-shadow(0 0 3px #06ffa5)}
+.lambda-flow-path{stroke-width:4;animation:flow 0.05s linear infinite,colorCycle 0.2s ease-in-out infinite;filter:drop-shadow(0 0 4px currentColor)}
+.ecs-flow-path{stroke-width:4;animation:flow 0.05s linear infinite,colorCycle 0.2s ease-in-out infinite;filter:drop-shadow(0 0 4px currentColor)}
+.securityhub-flow-path{stroke-width:4;animation:flow 0.05s linear infinite,colorCycle 0.2s ease-in-out infinite;filter:drop-shadow(0 0 4px currentColor)}
+.legend{position:fixed;bottom:calc(100px - 48px);right:calc(20px + 480px - 240px);background:#161b22;border:1px solid #30363d;border-radius:6px;padding:1rem;font-size:0.85rem;z-index:1001;width:280px;display:block}
+.legend-item{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem}
+.legend-color{width:12px;height:12px;border-radius:2px}
+.audit-trail{border-top:1px solid #30363d;padding-top:1rem;margin-top:1rem;font-size:0.75rem;max-height:120px;overflow-y:auto}
+.audit-entry{padding:0.4rem 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.deployment-panel{display:none;position:fixed;bottom:calc(100px - 19px - 57px + 48px - 19px + 7.92px);right:calc(20px + 480px + 220px - 288px + 48px);background:#161b22;border:1px solid #30363d;border-radius:6px;padding:1rem;max-height:280px;overflow-y:auto;z-index:1000;width:200px}
+.deployment-panel h3{color:#58a6ff;margin-bottom:1rem;font-size:0.95rem}
+.deployment-item{padding:0.4rem 0;font-size:0.8rem;color:#e6edf3}
+.fixbook-panel{display:none;font-size:0.75rem;max-height:150px;overflow-y:auto}
+.fixbook-entry{padding:0.5rem;margin-bottom:0.5rem;background:rgba(88,166,255,0.05);border-left:3px solid #58a6ff;border-radius:4px;cursor:pointer}
+.nfr-panel{position:fixed;top:calc(50% + 128.16px);left:calc(50% + 384px);transform:translate(-50%,-50%);background:#161b22;border:1px solid #06ffa5;border-radius:6px;padding:1rem;max-width:350px;z-index:2000;display:none;box-shadow:0 0 20px rgba(6,255,165,0.2)}
+.nfr-panel h2{color:#06ffa5;font-size:0.95rem;margin-bottom:0.75rem;text-align:center}
+.nfr-item{color:#e6edf3;margin:0.5rem 0;padding:0.4rem;border-left:2px solid #3fb950;background:rgba(63,185,80,0.05);font-size:0.75rem}
+.nfr-item strong{color:#06ffa5}
+.nfr-close{position:absolute;top:0.5rem;right:0.5rem;background:#f85149;border:none;color:#fff;padding:0.25rem 0.5rem;border-radius:3px;cursor:pointer;font-size:0.75rem}
+.simulator-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#161b22;border:2px solid #06ffa5;border-radius:8px;padding:2rem;z-index:3000;display:none;box-shadow:0 0 30px rgba(6,255,165,0.3);max-width:400px;width:90%}
+.simulator-modal h2{color:#06ffa5;margin-bottom:1.5rem;text-align:center}
+.simulator-input-group{margin-bottom:1.5rem}
+.simulator-input-group label{display:block;color:#8b949e;font-size:0.85rem;margin-bottom:0.5rem}
+.simulator-input-group input{width:100%;padding:0.75rem;background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:4px;font-size:0.9rem}
+.simulator-input-group input:focus{outline:none;border-color:#58a6ff;box-shadow:0 0 8px rgba(88,166,255,0.2)}
+.simulator-results{background:rgba(6,255,165,0.05);border:1px solid #06ffa5;border-radius:4px;padding:1rem;margin-bottom:1.5rem;font-size:0.85rem}
+.simulator-result-row{display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid rgba(6,255,165,0.1)}
+.simulator-result-row:last-child{border-bottom:none}
+.simulator-result-label{color:#8b949e}
+.simulator-result-value{color:#06ffa5;font-weight:600}
+.simulator-buttons{display:flex;gap:0.5rem}
+.simulator-buttons button{flex:1;padding:0.75rem;border:none;border-radius:4px;cursor:pointer;font-weight:600;transition:all 0.2s}
+.simulator-apply{background:#06ffa5;color:#0d1117}
+.simulator-apply:hover{background:#00e6a0;box-shadow:0 0 12px rgba(6,255,165,0.4)}
+.simulator-close{background:#30363d;color:#e6edf3}
+.simulator-close:hover{background:#3fb950}
+.simulator-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:2999;display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>Cyber StoryFlow 2.0: SOC Transformation Platform</h1>
+<div class="subtitle">GitHub + EventBridge → Layer 3 SOC | 98% AI/ML Automation | $22M Annual Savings</div>
+<div class="controls">
+<select id="flowMode" class="select">
+<option value="normal">Normal Flow</option>
+<option value="ddos">DDoS Attack</option>
+<option value="credential">Credential Attack</option>
+<option value="audit">GRC Audit</option>
+</select>
+<button id="toggleStream" class="btn">Stop Stream</button>
+<button id="showROI" class="btn">Show ROI</button>
+<button id="simulateAttack" class="btn">Simulate Attack</button>
+<button id="deploymentToggle" class="btn">Deployment</button>
+<button id="nfrToggle" class="btn">NFR (5 min)</button>
+</div>
+</header>
+
+<main class="dashboard">
+<section class="panel">
+<h3>GitHub → EventBridge Stream</h3>
+<div class="event-stream" id="eventStream"></div>
+<div class="audit-trail">
+<h3 style="font-size:0.9rem;margin-bottom:0.5rem;color:#58a6ff;">Recent Decisions</h3>
+<div id="auditTrail"></div>
+</div>
+</section>
+
+<section class="panel architecture-canvas">
+<svg class="connections-layer" id="connectionsSvg"></svg>
+<div class="component" data-id="github" style="border-color:#6e40aa!important;"><h4>🏢 GitHub</h4><p>AI Source</p></div>
+<div class="component layer1-color" data-id="route53"><h4>Route 53</h4><p>Geo-Location</p></div>
+<div class="component layer1-color" data-id="cdn"><h4>CloudFront</h4><p>CDN + API GW</p></div>
+<div class="component layer1-color" data-id="waf"><h4>WAF</h4><p>OWASP Rules</p></div>
+<div class="component layer1-color" data-id="shield"><h4>Shield</h4><p>DDoS Detection</p></div>
+<div class="component layer2-color" data-id="alb"><h4>ALB</h4><p>TLS Term</p></div>
+<div class="component layer2-color" data-id="vpc"><h4>VPC</h4><p>Subnets</p></div>
+<div class="component layer2-color" data-id="sg"><h4>SG</h4><p>Firewall</p></div>
+<div class="component layer2-color" data-id="verified"><h4>Verified</h4><p>Auth</p></div>
+<div class="component layer3-color" data-id="eventbridge"><h4>🔀 EventBridge</h4><p>AI Router</p></div>
+<div class="component layer3-color" data-id="guardduty"><h4>GuardDuty</h4><p>Threat Intel</p></div>
+<div class="component layer3-color" data-id="macie"><h4>Macie</h4><p>ML Patterns</p></div>
+<div class="component layer3-color" data-id="lambda"><h4>⚡ Lambda</h4><p>AI Processing</p></div>
+<div class="component layer3-color" data-id="ecs"><h4>📦 ECS/EKS</h4><p>AI Containers</p></div>
+<div class="component layer3-color" data-id="securityhub"><h4>🛡️ Security Hub</h4><p>AI Findings</p></div>
+<div class="component layer3-color" data-id="audit"><h4>Audit Mgr</h4><p>Compliance</p></div>
+</section>
+
+<section class="panel metrics-panel">
+<h3>Real-Time Metrics</h3>
+<div class="metric"><div class="metric-label">Daily Alerts</div><div class="metric-value" id="alertCount">0</div></div>
+<div class="metric"><div class="metric-label">AI Handled (98%)</div><div class="metric-value" id="aiCount">0</div></div>
+<div class="metric"><div class="metric-label">Human Review (2%)</div><div class="metric-value" id="humanCount">0</div></div>
+<div class="metric"><div class="metric-label">Compliance Score</div><div class="metric-value" id="complianceScore">98%</div></div>
+<div class="metric"><div class="metric-label">Analyst Queue</div><div class="metric-value" id="analystQueue">2</div></div>
+<div style="border-top:1px solid #30363d;padding-top:1rem;margin-top:1rem;">
+<button id="fixbookToggle" class="btn" style="width:100%;margin-bottom:0.5rem;">📖 Fixbook</button>
+<div id="fixbookPanel" class="fixbook-panel"></div>
+</div>
+</section>
+</main>
+
+<div class="legend">
+<div class="legend-item"><div class="legend-color" style="background:#9d4edd;"></div><span>Layer 1: Edge</span></div>
+<div class="legend-item"><div class="legend-color" style="background:#3a86ff;"></div><span>Layer 2: Perimeter</span></div>
+<div class="legend-item"><div class="legend-color" style="background:#06ffa5;"></div><span>Layer 3: SOC</span></div>
+<div class="legend-item"><div class="legend-color" style="background:#3fb950;"></div><span>Normal Flow</span></div>
+<div class="legend-item"><div class="legend-color" style="background:#ff6b6b;"></div><span>DDoS Attack</span></div>
+<div class="legend-item"><div class="legend-color" style="background:#f0ad4e;"></div><span>Credential</span></div>
+</div>
+
+<div class="deployment-panel" id="deploymentPanel">
+<h3>Deployment Ready</h3>
+<div class="deployment-item">✓ AWS Secrets configured</div>
+<div class="deployment-item">✓ GitHub access granted</div>
+<div class="deployment-item">✓ EventBridge deployed</div>
+<div class="deployment-item">✓ Lambda active</div>
+<div class="deployment-item">✓ Audit logging enabled</div>
+</div>
+
+<div class="nfr-panel" id="nfrPanel">
+<button class="nfr-close" onclick="document.getElementById('nfrPanel').style.display='none'">✕</button>
+<h2>NFR</h2>
+<div class="nfr-item"><strong>Scalability:</strong> 10K–10M events</div>
+<div class="nfr-item"><strong>Auditability:</strong> All actions logged</div>
+<div class="nfr-item"><strong>Resilience:</strong> Auto-failover, retry logic</div>
+<div class="nfr-item"><strong>Response:</strong> 1.2s avg</div>
+</div>
+
+<div class="controls-bottom">
+<button id="toggleStreamBottom" class="btn">Stop Stream</button>
+<button id="showROIBottom" class="btn">Show ROI</button>
+<button id="simulateAttackBottom" class="btn">Simulate Attack</button>
+<button id="scenarioSimulator" class="btn">📊 Scenario Simulator</button>
+</div>
+
+<div class="simulator-overlay" id="simulatorOverlay"></div>
+<div class="simulator-modal" id="simulatorModal">
+<h2>Alert Volume Simulator</h2>
+<div class="simulator-input-group">
+<label for="alertVolumeInput">Daily Alert Volume</label>
+<input type="number" id="alertVolumeInput" value="10000" min="100" max="10000000" step="100">
+</div>
+<div class="simulator-results">
+<div class="simulator-result-row">
+<span class="simulator-result-label">AI Handled (98%)</span>
+<span class="simulator-result-value" id="simAiCount">9,800</span>
+</div>
+<div class="simulator-result-row">
+<span class="simulator-result-label">Human Review (2%)</span>
+<span class="simulator-result-value" id="simHumanCount">200</span>
+</div>
+<div class="simulator-result-row">
+<span class="simulator-result-label">Est. Analyst Hours</span>
+<span class="simulator-result-value" id="simAnalystHours">1.7</span>
+</div>
+<div class="simulator-result-row">
+<span class="simulator-result-label">Annual Savings</span>
+<span class="simulator-result-value" id="simSavings">$22M</span>
+</div>
+</div>
+<div class="simulator-buttons">
+<button class="simulator-apply" id="applySimulator">Apply Scenario</button>
+<button class="simulator-close" id="closeSimulator">Close</button>
+</div>
+</div>
+
+<script>
+const app={isStreaming:true,streamInterval:null,eventCount:0,aiCount:0,humanCount:0,flowMode:'normal',isAttacking:false};
+const updateSimulatorResults=()=>{const volume=parseInt(document.getElementById('alertVolumeInput').value)||10000;const aiHandled=Math.floor(volume*0.98);const humanReview=Math.floor(volume*0.02);const hoursPerReview=0.5;const analystHours=(humanReview*hoursPerReview/60).toFixed(1);const costPerHour=150;const annualSavings=Math.floor((volume*365*0.98*costPerHour)/1000000);document.getElementById('simAiCount').textContent=aiHandled.toLocaleString();document.getElementById('simHumanCount').textContent=humanReview.toLocaleString();document.getElementById('simAnalystHours').textContent=analystHours;document.getElementById('simSavings').textContent='$'+annualSavings+'M';};
+const eventTemplates={normal:[{msg:'PR #1234 merged to main',type:'normal'},{msg:'GET /api/users - 200 OK',type:'normal'},{msg:'CloudFront cache hit - 1.2ms',type:'normal'}],ddos:[{msg:'🚨 DDoS: 100K req/sec from unknown IPs',type:'ddos'},{msg:'Shield: Anomaly detected - traffic spike 500%',type:'ddos'},{msg:'WAF: Rate-based rule triggered - blocking',type:'ddos'}],credential:[{msg:'⚠️ Failed login: 1000 attempts from 192.168.x.x',type:'credential'},{msg:'GuardDuty: Known malicious IP detected',type:'credential'},{msg:'Macie: Credential pattern detected',type:'credential'}],audit:[{msg:'📋 Audit: CloudTrail API call logged - immutable',type:'normal'},{msg:'🔐 Compliance: S3 Object Lock enabled - write-once',type:'normal'},{msg:'✓ Chain of Custody: Verified signature - tamper-proof',type:'normal'},{msg:'📊 GRC: Audit trail exported to compliance storage',type:'normal'},{msg:'🛡️ Audit Mgr: Compliance check passed - all layers',type:'normal'}]};
+function generateEvent(){const templates=eventTemplates[app.flowMode];return templates[Math.floor(Math.random()*templates.length)];}
+function addEvent(event){const stream=document.getElementById('eventStream');const el=document.createElement('div');el.className=`event-item ${event.type}`;el.innerHTML=`<div class="event-time">${new Date().toLocaleTimeString()}</div><div class="event-message">${event.msg}</div>`;stream.insertBefore(el,stream.firstChild);while(stream.children.length>30)stream.removeChild(stream.lastChild);app.eventCount++;if(event.type==='normal')app.aiCount++;else app.humanCount++;updateMetrics();}
+function addAuditEntry(decision,status){const trail=document.getElementById('auditTrail');const entry=document.createElement('div');entry.className='audit-entry';const icon=status==='auto'?'✓':'⚠';const color=status==='auto'?'#3fb950':'#f0ad4e';entry.innerHTML=`<div style="color:${color};font-weight:600;">${icon} ${decision.substring(0,25)}</div>`;trail.insertBefore(entry,trail.firstChild);while(trail.children.length>8)trail.removeChild(trail.lastChild);}
+function addFixbookEntry(event,decision,analyst){const fixbook=document.getElementById('fixbookPanel');const entry=document.createElement('div');entry.className='fixbook-entry';entry.innerHTML=`<div style="font-weight:600;color:#58a6ff;">${new Date().toLocaleTimeString()}</div><div style="color:#8b949e;font-size:0.7rem;">${event}</div><div style="color:#3fb950;font-size:0.7rem;margin-top:0.25rem;">By: ${analyst}</div>`;fixbook.insertBefore(entry,fixbook.firstChild);while(fixbook.children.length>5)fixbook.removeChild(fixbook.lastChild);}
+function updateMetrics(){document.getElementById('alertCount').textContent=app.eventCount.toLocaleString();document.getElementById('aiCount').textContent=Math.floor(app.eventCount*0.98).toLocaleString();document.getElementById('humanCount').textContent=Math.floor(app.eventCount*0.02).toLocaleString();}
+function startStream(){if(app.streamInterval)return;app.streamInterval=setInterval(()=>{const evt=generateEvent();addEvent(evt);if(evt.type!=='normal')addAuditEntry(evt.msg,evt.type==='normal'?'auto':'semi');},1000);}
+function stopStream(){if(app.streamInterval){clearInterval(app.streamInterval);app.streamInterval=null;}}
+function drawConnections(){const svg=document.getElementById('connectionsSvg');svg.innerHTML='';const connections={normal:[{from:'route53',to:'cdn',layer:'layer1'},{from:'cdn',to:'waf',layer:'layer1'},{from:'waf',to:'alb',layer:'layer2'},{from:'alb',to:'vpc',layer:'layer2'},{from:'vpc',to:'eventbridge',layer:'layer3'},{from:'eventbridge',to:'audit',layer:'layer3'},{from:'github',to:'eventbridge',layer:'layer3',type:'github-flow'},{from:'eventbridge',to:'lambda',layer:'layer3',type:'eventbridge-flow'},{from:'lambda',to:'ecs',layer:'layer3',type:'lambda-flow'},{from:'ecs',to:'securityhub',layer:'layer3',type:'ecs-flow'}],ddos:[{from:'shield',to:'waf',layer:'layer1',type:'ddos'},{from:'waf',to:'alb',layer:'layer2',type:'ddos'},{from:'alb',to:'eventbridge',layer:'layer3',type:'ddos'},{from:'eventbridge',to:'guardduty',layer:'layer3',type:'ddos'},{from:'guardduty',to:'lambda',layer:'layer3',type:'ddos'},{from:'lambda',to:'ecs',layer:'layer3',type:'ddos'},{from:'ecs',to:'securityhub',layer:'layer3',type:'ddos'}],credential:[{from:'route53',to:'cdn',layer:'layer1',type:'credential'},{from:'cdn',to:'waf',layer:'layer1',type:'credential'},{from:'waf',to:'alb',layer:'layer2',type:'credential'},{from:'alb',to:'verified',layer:'layer2',type:'credential'},{from:'verified',to:'vpc',layer:'layer2',type:'credential'},{from:'vpc',to:'eventbridge',layer:'layer3',type:'credential'},{from:'eventbridge',to:'guardduty',layer:'layer3',type:'credential'},{from:'guardduty',to:'macie',layer:'layer3',type:'credential'},{from:'macie',to:'lambda',layer:'layer3',type:'credential'},{from:'lambda',to:'ecs',layer:'layer3',type:'credential'},{from:'ecs',to:'securityhub',layer:'layer3',type:'credential'}],audit:[{from:'route53',to:'cdn',layer:'layer1',type:'normal'},{from:'cdn',to:'waf',layer:'layer1',type:'normal'},{from:'waf',to:'alb',layer:'layer2',type:'normal'},{from:'alb',to:'verified',layer:'layer2',type:'normal'},{from:'verified',to:'vpc',layer:'layer2',type:'normal'},{from:'vpc',to:'eventbridge',layer:'layer3',type:'normal'},{from:'eventbridge',to:'audit',layer:'layer3',type:'normal'},{from:'audit',to:'securityhub',layer:'layer3',type:'normal'}]};const flows=connections[app.flowMode]||connections.normal;flows.forEach((conn,idx)=>{const from=document.querySelector(`[data-id="${conn.from}"]`);const to=document.querySelector(`[data-id="${conn.to}"]`);if(from&&to){const fr=from.getBoundingClientRect();const tr=to.getBoundingClientRect();const sr=svg.getBoundingClientRect();const x1=fr.left+fr.width/2-sr.left;const y1=fr.top+fr.height/2-sr.top;const x2=tr.left+tr.width/2-sr.left;const y2=tr.top+tr.height/2-sr.top;const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',`M ${x1} ${y1} Q ${(x1+x2)/2} ${(y1+y2)/2-30} ${x2} ${y2}`);path.setAttribute('fill','none');path.setAttribute('class',`flow-path ${conn.layer} ${conn.type||'normal'}`);path.style.strokeDasharray='5 10';if(conn.type==='github-flow'||conn.type==='eventbridge-flow'||conn.type==='lambda-flow'||conn.type==='ecs-flow'||conn.type==='securityhub-flow'){path.setAttribute('class',`${conn.type}-path`);}else{path.style.animation=`flow ${0.2+idx*0.05}s linear infinite`;}svg.appendChild(path);}});};
+document.getElementById('flowMode').addEventListener('change',(e)=>{app.flowMode=e.target.value;app.eventCount=0;app.aiCount=0;app.humanCount=0;updateMetrics();drawConnections();});
+document.getElementById('toggleStream').addEventListener('click',function(){if(app.isStreaming){stopStream();this.textContent='Start Stream';}else{startStream();this.textContent='Stop Stream';}app.isStreaming=!app.isStreaming;});
+document.getElementById('showROI').addEventListener('click',()=>{alert(`ROI ANALYSIS\n━━━━━━━━━━━━━━━━━━━━━━━━\nManual Processing: $25M/year\nAutomated Processing: $3M/year\nNet Savings: $22M/year\nROI: 733% in Year 1\n━━━━━━━━━━━━━━━━━━━━━━━━`);});
+document.getElementById('fixbookToggle').addEventListener('click',function(){const panel=document.getElementById('fixbookPanel');panel.style.display=panel.style.display==='none'?'block':'none';});
+document.getElementById('nfrToggle').addEventListener('click',function(){const panel=document.getElementById('nfrPanel');panel.style.display=panel.style.display==='none'?'block':'none';});
+document.getElementById('deploymentToggle').addEventListener('click',function(){const panel=document.getElementById('deploymentPanel');panel.style.display=panel.style.display==='none'?'block':'none';});
+document.getElementById('simulateAttack').addEventListener('click',function(){if(app.isAttacking){window.stopAttack?.();return;}app.isAttacking=true;this.classList.add('error');this.textContent='🚨 STOP ATTACK';const normalCount=app.eventCount;const normalMode=app.flowMode;app.flowMode='ddos';drawConnections();let attackCount=100000000;const attackInterval=setInterval(()=>{attackCount+=Math.floor(Math.random()*4800000)+4800000;document.getElementById('alertCount').textContent=attackCount.toLocaleString();const lambda=document.querySelector('[data-id="lambda"]');if(lambda)lambda.style.boxShadow=`0 0 40px rgba(255,68,68,0.8)`;},20);const attackFlood=setInterval(()=>{for(let i=0;i<5;i++)addEvent({msg:'🚨 BOTNET: '+Math.floor(Math.random()*2000000)+' requests/sec blocked',type:'ddos'});},100);window.stopAttack=()=>{clearInterval(attackInterval);clearInterval(attackFlood);app.isAttacking=false;document.getElementById('simulateAttack').classList.remove('error');document.getElementById('simulateAttack').textContent='Simulate Attack';app.eventCount=normalCount;app.flowMode=normalMode;drawConnections();updateMetrics();const lambda=document.querySelector('[data-id="lambda"]');if(lambda)lambda.style.boxShadow='';addEvent({msg:'✅ Attack mitigated: '+attackCount.toLocaleString()+' requests blocked',type:'normal'});};setTimeout(window.stopAttack,60000);});
+document.getElementById('nfrToggle').addEventListener('click',function(){const panel=document.getElementById('nfrPanel');if(panel.style.display==='none'){panel.style.display='block';let time=300;const countdown=setInterval(()=>{time-=1;if(time<=0){panel.style.display='none';clearInterval(countdown);}},1000);}});
+document.getElementById('toggleStreamBottom').addEventListener('click',()=>document.getElementById('toggleStream').click());
+document.getElementById('showROIBottom').addEventListener('click',()=>document.getElementById('showROI').click());
+document.getElementById('simulateAttackBottom').addEventListener('click',()=>document.getElementById('simulateAttack').click());
+document.getElementById('alertVolumeInput').addEventListener('input',updateSimulatorResults);
+document.getElementById('scenarioSimulator').addEventListener('click',()=>{document.getElementById('simulatorOverlay').style.display='block';document.getElementById('simulatorModal').style.display='block';updateSimulatorResults();});
+document.getElementById('closeSimulator').addEventListener('click',()=>{document.getElementById('simulatorOverlay').style.display='none';document.getElementById('simulatorModal').style.display='none';});
+document.getElementById('simulatorOverlay').addEventListener('click',()=>{document.getElementById('simulatorOverlay').style.display='none';document.getElementById('simulatorModal').style.display='none';});
+document.getElementById('applySimulator').addEventListener('click',()=>{const volume=parseInt(document.getElementById('alertVolumeInput').value)||10000;app.eventCount=volume;updateMetrics();document.getElementById('simulatorOverlay').style.display='none';document.getElementById('simulatorModal').style.display='none';addEvent({msg:'📊 Scenario loaded: '+volume.toLocaleString()+' daily alerts',type:'normal'});});
+setInterval(()=>{document.getElementById('complianceScore').textContent=(Math.max(95,98-Math.floor(Math.random()*3)))+'%';document.getElementById('analystQueue').textContent=Math.floor(Math.random()*5)+1;},3000);
+document.addEventListener('DOMContentLoaded',()=>{startStream();drawConnections();updateSimulatorResults();window.addEventListener('resize',()=>setTimeout(drawConnections,250));});
+</script>
+</body>
+</html>
