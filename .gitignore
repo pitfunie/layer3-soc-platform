@@ -1,0 +1,11 @@
+# Hard IP Air-Gap
+terraform/
+lambda/
+*.tf
+*.tfvars
+.terraform/
+terraform.tfstate*
+*.py
+__pycache__/
+.env
+secrets.json

@@ -1,0 +1,14 @@
+Copyright (C) 2026 Michael Synergy (MilieuCloud). All Rights Reserved.
+
+CONFIDENTIAL & PROPRIETARY
+
+This repository contains ONLY the interactive presentation layouts, user interface mechanics, 
+and graphical flow mappings for the Cyber StoryFlow 2.0 / Layer 3 SOC Transformation Platform.
+
+The underlying operational source code, including but not limited to the Python3 autonomic 
+wrapper runtimes, idempotent engine frameworks, and architectural Terraform manifests, 
+constitutes proprietary trade secrets and exclusive intellectual property of the author.
+
+NO LICENSE, EXPRESS OR IMPLIED, BY ESTOPPEL OR OTHERWISE, TO ANY INTELLECTUAL PROPERTY RIGHTS 
+IS GRANTED BY THIS PUBLIC DISPLAY. Unauthorized copying, modification, reverse engineering, 
+or distribution of the underlying automation frameworks is strictly prohibited.
